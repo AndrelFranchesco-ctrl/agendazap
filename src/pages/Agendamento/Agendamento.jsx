@@ -4,14 +4,15 @@ import { useDadosNegocio } from '../../hooks/useDadosNegocio'
 import { useHorariosDoDia } from '../../hooks/useHorariosDoDia'
 import { criarAgendamento, HorarioIndisponivelError } from '../../services/agendamentos'
 import ServicoList from './components/ServicoList'
+import SeletorProfissional from './components/SeletorProfissional'
 import SeletorDataHora from './components/SeletorDataHora'
 import FormularioCliente from './components/FormularioCliente'
 import Confirmacao from './components/Confirmacao'
 import styles from './Agendamento.module.css'
 
-const ETAPAS = ['servico', 'horario', 'dados', 'confirmado']
 const TITULO_ETAPA = {
   servico: 'Escolha o serviço',
+  profissional: 'Escolha o profissional',
   horario: 'Escolha o dia e horário',
   dados: 'Seus dados',
   confirmado: '',
@@ -25,10 +26,20 @@ function hojeSemHora() {
 
 export default function Agendamento() {
   const { slug = 'demo' } = useParams()
-  const { negocio, servicos, carregando, erro, ehDemo } = useDadosNegocio(slug)
+  const { negocio, servicos, profissionais, carregando, erro, ehDemo } = useDadosNegocio(slug)
+
+  // Negócios com pelo menos um Profissional ativo sempre passam pela etapa de
+  // escolher quem atende (ver ADR-0005) — negócios sem nenhum continuam no
+  // modo antigo, o negócio inteiro como recurso único (compatibilidade).
+  const negocioUsaProfissionais = profissionais.length > 0
+  const ETAPAS = negocioUsaProfissionais
+    ? ['servico', 'profissional', 'horario', 'dados', 'confirmado']
+    : ['servico', 'horario', 'dados', 'confirmado']
+  const totalPassos = ETAPAS.length - 1
 
   const [etapa, setEtapa] = useState('servico')
   const [servico, setServico] = useState(null)
+  const [profissional, setProfissional] = useState(null)
   const [dia, setDia] = useState(hojeSemHora())
   const [horario, setHorario] = useState(null)
   const [enviando, setEnviando] = useState(false)
@@ -38,11 +49,15 @@ export default function Agendamento() {
   const { horarios, carregando: carregandoHorarios } = useHorariosDoDia({
     negocio,
     servico,
+    profissional,
     dia,
     ehDemo,
   })
 
   const indiceEtapa = ETAPAS.indexOf(etapa)
+  const profissionaisDoServico = servico
+    ? profissionais.filter((p) => p.servicosIds.includes(servico.id))
+    : []
 
   function voltar() {
     setErroEnvio(null)
@@ -51,6 +66,14 @@ export default function Agendamento() {
 
   function escolherServico(s) {
     setServico(s)
+    setProfissional(null)
+    setHorario(null)
+    setEtapa(negocioUsaProfissionais ? 'profissional' : 'horario')
+  }
+
+  function escolherProfissional(p) {
+    setProfissional(p)
+    setHorario(null)
     setEtapa('horario')
   }
 
@@ -70,6 +93,8 @@ export default function Agendamento() {
       } else {
         await criarAgendamento({
           negocioId: negocio.id,
+          profissionalId: profissional?.id,
+          profissionalNome: profissional?.nome,
           servicoId: servico.id,
           servicoNome: servico.nome,
           duracaoMin: servico.duracaoMin,
@@ -130,7 +155,7 @@ export default function Agendamento() {
           <p className={styles.nomeNegocio}>{negocio.nome}</p>
           {etapa !== 'confirmado' && (
             <p className={styles.progresso}>
-              Passo {indiceEtapa + 1} de 3 — {TITULO_ETAPA[etapa]}
+              Passo {indiceEtapa + 1} de {totalPassos} — {TITULO_ETAPA[etapa]}
             </p>
           )}
         </div>
@@ -140,6 +165,19 @@ export default function Agendamento() {
         {etapa === 'servico' && (
           <ServicoList servicos={servicos} selecionado={servico} aoSelecionar={escolherServico} />
         )}
+
+        {etapa === 'profissional' &&
+          (profissionaisDoServico.length > 0 ? (
+            <SeletorProfissional
+              profissionais={profissionaisDoServico}
+              selecionado={profissional}
+              aoSelecionar={escolherProfissional}
+            />
+          ) : (
+            <p className={styles.mensagemCentral}>
+              Nenhum profissional atende esse serviço no momento. Escolha outro serviço.
+            </p>
+          ))}
 
         {etapa === 'horario' && (
           <SeletorDataHora
@@ -157,7 +195,13 @@ export default function Agendamento() {
         )}
 
         {etapa === 'confirmado' && (
-          <Confirmacao negocio={negocio} servico={servico} horario={horario} nomeCliente={cliente?.nome} />
+          <Confirmacao
+            negocio={negocio}
+            servico={servico}
+            profissional={profissional}
+            horario={horario}
+            nomeCliente={cliente?.nome}
+          />
         )}
       </main>
     </div>

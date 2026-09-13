@@ -1,8 +1,14 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/authContextBase'
+import { caminhoInicial } from '../lib/rotas'
 
-/** Exige login. Se `exigirNegocio`, também exige que o dono já tenha criado um negócio. */
-export default function RotaProtegida({ children, exigirNegocio = false }) {
+/**
+ * Exige login. `papel` restringe a rota a 'dono' ou 'profissional' — quem
+ * está logado com o papel errado é mandado pra própria área (painel ou
+ * equipe) em vez de tentar renderizar uma tela que o Firestore vai negar
+ * de qualquer forma (defesa em profundidade, ver firestore.rules).
+ */
+export default function RotaProtegida({ children, papel }) {
   const { usuario, perfil } = useAuth()
 
   if (usuario === undefined || (usuario && perfil === undefined)) {
@@ -11,7 +17,7 @@ export default function RotaProtegida({ children, exigirNegocio = false }) {
 
   if (!usuario) return <Navigate to="/entrar" replace />
 
-  if (exigirNegocio && !perfil?.negocioId) return <Navigate to="/novo-negocio" replace />
+  if (papel && perfil?.tipo !== papel) return <Navigate to={caminhoInicial(perfil)} replace />
 
   return children
 }

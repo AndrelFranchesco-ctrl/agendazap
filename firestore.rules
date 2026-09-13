@@ -18,9 +18,24 @@ service cloud.firestore {
     // ------------------------------------------------------------------
     match /slugs/{slug} {
       allow read: if true;
-      allow create: if autenticado()
-        && request.resource.data.keys().hasOnly(['negocioId'])
-        && request.resource.data.negocioId is string;
+      // ehDonoDoNegocio funciona aqui porque criarNegocio cria o documento em
+      // negocios/ numa escrita própria ANTES desta (ver ADR-0004/serviço) —
+      // um get() dentro de regra não vê escritas irmãs da MESMA transação,
+      // só o que já está de fato commitado, então o negócio precisa existir
+      // de verdade primeiro.
+      allow create: if ehDonoDoNegocio(request.resource.data.negocioId)
+        && request.resource.data.keys().hasOnly(['negocioId']);
+      allow update, delete: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // codigosEquipe/{codigo} — reserva do código que um Profissional usa pra
+    // entrar num negócio já existente (ADR-0006). Mesmo padrão de slugs/.
+    // ------------------------------------------------------------------
+    match /codigosEquipe/{codigo} {
+      allow read: if true;
+      allow create: if ehDonoDoNegocio(request.resource.data.negocioId)
+        && request.resource.data.keys().hasOnly(['negocioId']);
       allow update, delete: if false;
     }
 
@@ -31,17 +46,23 @@ service cloud.firestore {
     match /negocios/{negocioId} {
       allow read: if true;
 
+      // Criado SEM slug (ver services/negocios.js: criarNegocio primeiro cria
+      // o negócio, só depois reserva slug/código numa transação separada —
+      // necessário pra ehDonoDoNegocio em slugs/codigosEquipe conseguir
+      // verificar um negócio que já existe de fato, não um em criação).
       allow create: if autenticado()
         && request.resource.data.donoUid == request.auth.uid
-        && request.resource.data.keys().hasAll(['nome', 'slug', 'donoUid'])
-        && request.resource.data.nome is string
-        && request.resource.data.slug is string;
+        && request.resource.data.keys().hasAll(['nome', 'donoUid'])
+        && request.resource.data.nome is string;
 
       allow update: if ehDonoDoNegocio(negocioId)
-        // dono não pode roubar o negócio transferindo donoUid pra si em outro doc,
-        // nem mudar o slug depois de criado (links já compartilhados quebrariam).
+        // dono não pode roubar o negócio transferindo donoUid pra si em outro doc.
         && request.resource.data.donoUid == resource.data.donoUid
-        && request.resource.data.slug == resource.data.slug;
+        // slug só pode ser setado UMA VEZ (na 2ª etapa da criação) — depois de
+        // definido, nunca muda (links já compartilhados quebrariam).
+        && (resource.data.get('slug', null) == null
+            ? true
+            : request.resource.data.slug == resource.data.slug);
 
       allow delete: if false; // fechar um negócio é uma decisão manual/suporte, não self-service em v1
 
@@ -56,6 +77,47 @@ service cloud.firestore {
           && request.resource.data.duracaoMin is int && request.resource.data.duracaoMin > 0
           && request.resource.data.preco is number && request.resource.data.preco >= 0;
         allow delete: if ehDonoDoNegocio(negocioId);
+      }
+
+      // ----------------------------------------------------------------
+      // profissionais — quem de fato atende o cliente (ADR-0005). Leitura
+      // pública (nome/bio aparecem na tela de agendamento, tipo um mini
+      // portfólio — nunca tem PII de Cliente). Entrada por autoatendimento
+      // com código de equipe (ADR-0006), validado no servidor via get() em
+      // codigosEquipe/ — nasce ativo:false, só o dono aprova.
+      // ----------------------------------------------------------------
+      match /profissionais/{profissionalId} {
+        allow read: if true;
+
+        allow create: if autenticado()
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.ativo == false
+          && request.resource.data.keys().hasAll(
+              ['uid', 'nome', 'servicosIds', 'horarioTrabalho', 'ativo', 'codigoUsado']
+            )
+          && request.resource.data.nome is string && request.resource.data.nome.size() >= 2
+          && get(/databases/$(database)/documents/codigosEquipe/$(request.resource.data.codigoUsado)).data.negocioId == negocioId;
+
+        // O dono aprova (ativo) e edita à vontade; o próprio profissional só
+        // edita o próprio perfil/horário, nunca o campo `ativo` nem trocar de dono.
+        allow update: if ehDonoDoNegocio(negocioId)
+          || (autenticado()
+              && resource.data.uid == request.auth.uid
+              && request.resource.data.uid == resource.data.uid
+              && request.resource.data.ativo == resource.data.ativo);
+
+        allow delete: if ehDonoDoNegocio(negocioId);
+
+        // Trava de concorrência (ADR-0002) e fonte pública de disponibilidade
+        // (ADR-0003), agora por Profissional em vez de por negócio inteiro
+        // (ADR-0005) — mesmas regras e mesmo risco residual da versão anterior.
+        match /agendaTravas/{blocoId} {
+          allow read: if true;
+          allow create: if request.resource.data.keys().hasOnly(['agendamentoId'])
+            && request.resource.data.agendamentoId is string;
+          allow update: if false;
+          allow delete: if ehDonoDoNegocio(negocioId);
+        }
       }
 
       // ----------------------------------------------------------------

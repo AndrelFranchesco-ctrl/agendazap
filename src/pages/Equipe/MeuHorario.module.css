@@ -1,0 +1,10 @@
+.ajuda {
+  margin: 0 0 var(--espaco-4);
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.botaoSalvar {
+  position: sticky;
+  bottom: var(--espaco-4);
+}

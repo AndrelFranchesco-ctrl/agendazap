@@ -1,0 +1,35 @@
+.campo {
+  margin: 0 0 var(--espaco-5);
+  border: none;
+  padding: 0;
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--cor-texto);
+  margin-bottom: var(--espaco-2);
+  padding: 0;
+}
+
+.listaServicos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+.itemServico {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  padding: var(--espaco-3);
+  background: var(--cor-superficie);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.itemServico input {
+  width: 20px;
+  height: 20px;
+}

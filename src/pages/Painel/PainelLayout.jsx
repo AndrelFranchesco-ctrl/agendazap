@@ -41,6 +41,9 @@ export default function PainelLayout() {
         <NavLink to="/painel/horario" className={({ isActive }) => (isActive ? styles.abaAtiva : styles.aba)}>
           Horário
         </NavLink>
+        <NavLink to="/painel/equipe" className={({ isActive }) => (isActive ? styles.abaAtiva : styles.aba)}>
+          Equipe
+        </NavLink>
       </nav>
 
       <main className={styles.conteudo}>

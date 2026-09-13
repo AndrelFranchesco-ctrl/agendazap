@@ -19,7 +19,7 @@ export default function Cadastro() {
     setErro(null)
     try {
       await cadastrar(email, senha)
-      navigate('/novo-negocio')
+      navigate('/comecar')
     } catch (e) {
       setErro(mensagemErroAuth(e))
     } finally {
@@ -28,7 +28,7 @@ export default function Cadastro() {
   }
 
   return (
-    <CartaoFormulario titulo="Criar conta" subtitulo="Cadastre seu negócio no AgendaZap">
+    <CartaoFormulario titulo="Criar conta" subtitulo="Crie sua conta no AgendaZap">
       <form onSubmit={aoEnviar} noValidate>
         <CampoTexto
           label="E-mail"

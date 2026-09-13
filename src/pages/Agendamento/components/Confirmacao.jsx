@@ -1,7 +1,7 @@
 import { formatarDataCurta, formatarHora } from '../../../lib/horarios'
 import styles from './Confirmacao.module.css'
 
-export default function Confirmacao({ negocio, servico, horario, nomeCliente }) {
+export default function Confirmacao({ negocio, servico, profissional, horario, nomeCliente }) {
   return (
     <div className={styles.container}>
       <div className={styles.icone} aria-hidden="true">
@@ -26,6 +26,12 @@ export default function Confirmacao({ negocio, servico, horario, nomeCliente }) 
           <dt>Serviço</dt>
           <dd>{servico.nome}</dd>
         </div>
+        {profissional && (
+          <div className={styles.linha}>
+            <dt>Profissional</dt>
+            <dd>{profissional.nome}</dd>
+          </div>
+        )}
         <div className={styles.linha}>
           <dt>Data</dt>
           <dd>{formatarDataCurta(horario)}</dd>

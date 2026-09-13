@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import CartaoFormulario from '../../components/CartaoFormulario'
 import CampoTexto from '../../components/CampoTexto'
 import Botao from '../../components/Botao'
@@ -7,9 +7,10 @@ import { useAuth } from '../../contexts/authContextBase'
 import { criarNegocio, SlugIndisponivelError } from '../../services/negocios'
 import { slugify, slugValido } from '../../lib/slug'
 import { mascararTelefone, telefoneValido } from '../../lib/telefone'
+import { caminhoInicial } from '../../lib/rotas'
 
 export default function NovoNegocio() {
-  const { usuario, refreshPerfil } = useAuth()
+  const { usuario, perfil, refreshPerfil } = useAuth()
   const navigate = useNavigate()
 
   const [nome, setNome] = useState('')
@@ -18,6 +19,9 @@ export default function NovoNegocio() {
   const [whatsapp, setWhatsapp] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState(null)
+
+  // Já é dono ou profissional de um negócio — não faz sentido criar outro.
+  if (perfil?.negocioId) return <Navigate to={caminhoInicial(perfil)} replace />
 
   function aoMudarNome(valor) {
     setNome(valor)

@@ -7,6 +7,14 @@
         { "fieldPath": "ativo", "order": "ASCENDING" },
         { "fieldPath": "nome", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "profissionais",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ativo", "order": "ASCENDING" },
+        { "fieldPath": "nome", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

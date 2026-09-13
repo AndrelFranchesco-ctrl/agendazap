@@ -66,6 +66,7 @@ export default function Agenda() {
         agendamentoId: agendamento.id,
         dataHoraInicio: agendamento.dataHoraInicio,
         duracaoMin: agendamento.duracaoMin,
+        profissionalId: agendamento.profissionalId,
       })
       await recarregar()
     } finally {
@@ -107,6 +108,7 @@ export default function Agenda() {
               <p className={styles.cliente}>{a.clienteNome}</p>
               <p className={styles.servico}>
                 {a.servicoNome} · {a.duracaoMin} min
+                {a.profissionalNome && ` · ${a.profissionalNome}`}
               </p>
               <a
                 className={styles.linkWhats}

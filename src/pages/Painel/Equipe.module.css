@@ -1,0 +1,99 @@
+.codigoCard {
+  padding: var(--espaco-4);
+  background: var(--cor-primaria-tint);
+  border-radius: var(--raio-md);
+  margin-bottom: var(--espaco-5);
+  text-align: center;
+}
+
+.codigoLabel {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.codigoValor {
+  margin: var(--espaco-1) 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--cor-primaria);
+}
+
+.codigoAjuda {
+  margin: 0 0 var(--espaco-3);
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.botaoCopiar {
+  background: var(--cor-superficie);
+  border: 1.5px solid var(--cor-primaria);
+  color: var(--cor-primaria);
+  border-radius: var(--raio-sm);
+  padding: var(--espaco-2) var(--espaco-4);
+  font-weight: 500;
+  min-height: var(--alvo-toque-min);
+}
+
+.mensagem {
+  color: var(--cor-texto-suave);
+  padding: var(--espaco-3) 0;
+}
+
+.titulo {
+  font-size: 14px;
+  color: var(--cor-texto-suave);
+  margin: var(--espaco-5) 0 var(--espaco-2);
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  padding: var(--espaco-3) var(--espaco-4);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.nome {
+  margin: 0;
+  font-weight: 600;
+}
+
+.detalhe {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.botaoAprovar {
+  flex-shrink: 0;
+  background: var(--cor-primaria);
+  color: #fff;
+  border: none;
+  border-radius: var(--raio-sm);
+  padding: var(--espaco-2) var(--espaco-3);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.linkAcaoPerigo {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--cor-erro);
+  font-size: 13px;
+  font-weight: 500;
+}

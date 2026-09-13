@@ -1,0 +1,29 @@
+.opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+}
+
+.opcao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-1);
+  text-align: left;
+  padding: var(--espaco-4);
+  background: var(--cor-fundo);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.opcao:hover {
+  border-color: var(--cor-primaria);
+}
+
+.opcaoTitulo {
+  font-weight: 600;
+}
+
+.opcaoDescricao {
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}

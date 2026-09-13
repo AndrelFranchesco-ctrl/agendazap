@@ -26,15 +26,26 @@ function fimDoDia(data) {
 }
 
 /**
+ * Onde ficam as travas de horário: por Profissional quando o negócio usa esse
+ * modelo (ADR-0005), ou no negócio inteiro no modo de compatibilidade (negócio
+ * sem nenhum Profissional cadastrado — negócios antigos ou dono que atende sozinho).
+ */
+function refAgendaTravas(negocioId, profissionalId) {
+  return profissionalId
+    ? collection(db, 'negocios', negocioId, 'profissionais', profissionalId, 'agendaTravas')
+    : collection(db, 'negocios', negocioId, 'agendaTravas')
+}
+
+/**
  * Blocos de 15min ocupados por agendamentos confirmados, no dia informado.
  *
  * Lê a coleção pública `agendaTravas` (só {agendamentoId}, sem dado do cliente)
  * em vez da coleção `agendamentos` (que tem nome/telefone do cliente) — a tela
  * pública de agendamento não pode ler dados de outros clientes só pra calcular
- * horário livre. Ver firestore.rules.
+ * horário livre. Ver firestore.rules e ADR-0003/ADR-0005.
  */
-export async function buscarOcupadosDoDia(negocioId, dataBase) {
-  const ref = collection(db, 'negocios', negocioId, 'agendaTravas')
+export async function buscarOcupadosDoDia(negocioId, dataBase, profissionalId) {
+  const ref = refAgendaTravas(negocioId, profissionalId)
   const diaSeguinte = new Date(dataBase)
   diaSeguinte.setDate(diaSeguinte.getDate() + 1)
   const q = query(
@@ -85,16 +96,19 @@ export async function listarAgendamentosDoDia(negocioId, dataBase) {
 /**
  * Cancela um agendamento e libera os blocos de horário que ele ocupava
  * (ver ADR-0002/ADR-0003 — sem isso o horário fica "fantasma-ocupado" pra
- * sempre, mesmo aparecendo cancelado no painel).
+ * sempre, mesmo aparecendo cancelado no painel). `profissionalId` decide de
+ * qual coleção de travas apagar (ver ADR-0005) — precisa ser o mesmo valor
+ * gravado no agendamento original.
  */
-export async function cancelarAgendamento({ negocioId, agendamentoId, dataHoraInicio, duracaoMin }) {
+export async function cancelarAgendamento({ negocioId, agendamentoId, dataHoraInicio, duracaoMin, profissionalId }) {
   const negocioRef = doc(db, 'negocios', negocioId)
+  const travasRef = refAgendaTravas(negocioId, profissionalId)
   const batch = writeBatch(db)
 
   batch.update(doc(negocioRef, 'agendamentos', agendamentoId), { status: 'cancelado' })
 
   blocosOcupados(dataHoraInicio, duracaoMin).forEach((b) => {
-    batch.delete(doc(negocioRef, 'agendaTravas', chaveDoBloco(b)))
+    batch.delete(doc(travasRef, chaveDoBloco(b)))
   })
 
   await batch.commit()
@@ -110,12 +124,16 @@ export class HorarioIndisponivelError extends Error {
 /**
  * Cria um agendamento de forma atômica usando trava por documentos-bloco
  * (ver ADR-0002 — o SDK Web do Firestore não permite query dentro de transação,
- * só leitura de documentos individuais por referência).
+ * só leitura de documentos individuais por referência). Quando `profissionalId`
+ * é informado, a trava e o agendamento ficam atrelados a esse Profissional
+ * (ADR-0005); sem ele, ao negócio inteiro (modo de compatibilidade).
  *
  * Nunca criar um agendamento fora desta função.
  */
 export async function criarAgendamento({
   negocioId,
+  profissionalId,
+  profissionalNome,
   servicoId,
   servicoNome,
   duracaoMin,
@@ -125,8 +143,9 @@ export async function criarAgendamento({
 }) {
   const negocioRef = doc(db, 'negocios', negocioId)
   const agendamentoRef = doc(collection(negocioRef, 'agendamentos'))
+  const travasRef = refAgendaTravas(negocioId, profissionalId)
   const blocos = blocosOcupados(dataHoraInicio, duracaoMin)
-  const travaRefs = blocos.map((b) => doc(negocioRef, 'agendaTravas', chaveDoBloco(b)))
+  const travaRefs = blocos.map((b) => doc(travasRef, chaveDoBloco(b)))
 
   await runTransaction(db, async (tx) => {
     // Todas as leituras precisam vir antes de qualquer escrita na transação.
@@ -136,6 +155,7 @@ export async function criarAgendamento({
     }
 
     tx.set(agendamentoRef, {
+      ...(profissionalId ? { profissionalId, profissionalNome } : {}),
       servicoId,
       servicoNome,
       duracaoMin,
