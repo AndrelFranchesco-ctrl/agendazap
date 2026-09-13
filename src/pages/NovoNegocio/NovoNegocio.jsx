@@ -63,7 +63,7 @@ export default function NovoNegocio() {
           value={slug}
           onChange={(e) => aoMudarSlug(e.target.value)}
           erro={erroSlug}
-          ajuda={!erroSlug ? `Seus clientes vão agendar em agendazap.app/${slug || 'seu-link'}` : undefined}
+          ajuda={!erroSlug ? `Seus clientes vão agendar em ${window.location.host}/${slug || 'seu-link'}` : undefined}
           required
         />
         <CampoTexto

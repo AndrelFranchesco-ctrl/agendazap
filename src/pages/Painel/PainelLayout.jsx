@@ -23,7 +23,7 @@ export default function PainelLayout() {
             target="_blank"
             rel="noreferrer"
           >
-            agendazap.app/{negocio?.slug} ↗
+            {window.location.host}/{negocio?.slug} ↗
           </a>
         </div>
         <button type="button" className={styles.botaoSair} onClick={sair}>
