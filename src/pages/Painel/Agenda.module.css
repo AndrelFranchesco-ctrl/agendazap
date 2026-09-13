@@ -1,0 +1,134 @@
+.navegacaoDia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaco-5);
+}
+
+.botaoNav {
+  width: var(--alvo-toque-min);
+  height: var(--alvo-toque-min);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-sm);
+  font-size: 18px;
+  color: var(--cor-texto);
+}
+
+.botaoNav:hover {
+  border-color: var(--cor-primaria);
+}
+
+.diaAtual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-weight: 600;
+}
+
+.linkHoje {
+  background: none;
+  border: none;
+  color: var(--cor-primaria);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0;
+}
+
+.mensagem {
+  color: var(--cor-texto-suave);
+  text-align: center;
+  padding: var(--espaco-5) 0;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: var(--espaco-3) var(--espaco-4);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.itemCancelado {
+  opacity: 0.6;
+}
+
+.hora {
+  flex-shrink: 0;
+  min-width: 52px;
+  font-weight: 700;
+  color: var(--cor-primaria);
+}
+
+.detalhes {
+  flex: 1;
+  min-width: 0;
+}
+
+.cliente {
+  margin: 0;
+  font-weight: 600;
+}
+
+.servico {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.linkWhats {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--cor-primaria);
+  text-decoration: none;
+}
+
+.linkWhats:hover {
+  text-decoration: underline;
+}
+
+.acoes {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--espaco-1);
+}
+
+.status {
+  font-size: 12px;
+  color: var(--cor-texto-suave);
+}
+
+.botaoCancelar {
+  background: none;
+  border: none;
+  color: var(--cor-erro);
+  font-size: 13px;
+  font-weight: 500;
+  padding: var(--espaco-1);
+}
+
+.detalhesCancelados {
+  margin-top: var(--espaco-5);
+}
+
+.detalhesCancelados summary {
+  cursor: pointer;
+  color: var(--cor-texto-suave);
+  font-size: 14px;
+  margin-bottom: var(--espaco-3);
+}

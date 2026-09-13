@@ -2,8 +2,10 @@ import {
   collection,
   query,
   where,
+  orderBy,
   getDocs,
   runTransaction,
+  writeBatch,
   Timestamp,
   doc,
   documentId,
@@ -58,6 +60,44 @@ export async function buscarBloqueiosDoDia(negocioId, dataBase) {
       return { inicio: data.inicio.toDate(), fim: data.fim.toDate() }
     })
     .filter((b) => b.fim >= inicioDoDia(dataBase))
+}
+
+/**
+ * Lista os agendamentos do dia pro PAINEL DO DONO — com nome/telefone do
+ * cliente (PII). Nunca usar isso na tela pública (ver ADR-0003); a regra do
+ * Firestore já restringe essa coleção só ao dono do negócio.
+ */
+export async function listarAgendamentosDoDia(negocioId, dataBase) {
+  const ref = collection(db, 'negocios', negocioId, 'agendamentos')
+  const q = query(
+    ref,
+    where('dataHoraInicio', '>=', Timestamp.fromDate(inicioDoDia(dataBase))),
+    where('dataHoraInicio', '<=', Timestamp.fromDate(fimDoDia(dataBase))),
+    orderBy('dataHoraInicio')
+  )
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => {
+    const data = d.data()
+    return { id: d.id, ...data, dataHoraInicio: data.dataHoraInicio.toDate() }
+  })
+}
+
+/**
+ * Cancela um agendamento e libera os blocos de horário que ele ocupava
+ * (ver ADR-0002/ADR-0003 — sem isso o horário fica "fantasma-ocupado" pra
+ * sempre, mesmo aparecendo cancelado no painel).
+ */
+export async function cancelarAgendamento({ negocioId, agendamentoId, dataHoraInicio, duracaoMin }) {
+  const negocioRef = doc(db, 'negocios', negocioId)
+  const batch = writeBatch(db)
+
+  batch.update(doc(negocioRef, 'agendamentos', agendamentoId), { status: 'cancelado' })
+
+  blocosOcupados(dataHoraInicio, duracaoMin).forEach((b) => {
+    batch.delete(doc(negocioRef, 'agendaTravas', chaveDoBloco(b)))
+  })
+
+  await batch.commit()
 }
 
 export class HorarioIndisponivelError extends Error {

@@ -32,6 +32,9 @@ export default function PainelLayout() {
       </header>
 
       <nav className={styles.abas}>
+        <NavLink to="/painel/agenda" className={({ isActive }) => (isActive ? styles.abaAtiva : styles.aba)}>
+          Agenda
+        </NavLink>
         <NavLink to="/painel/servicos" className={({ isActive }) => (isActive ? styles.abaAtiva : styles.aba)}>
           Serviços
         </NavLink>

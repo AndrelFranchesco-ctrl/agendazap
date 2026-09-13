@@ -5,6 +5,7 @@ import Entrar from './pages/Auth/Entrar'
 import Cadastro from './pages/Auth/Cadastro'
 import NovoNegocio from './pages/NovoNegocio/NovoNegocio'
 import PainelLayout from './pages/Painel/PainelLayout'
+import Agenda from './pages/Painel/Agenda'
 import Servicos from './pages/Painel/Servicos'
 import Horario from './pages/Painel/Horario'
 import Agendamento from './pages/Agendamento/Agendamento'
@@ -34,7 +35,8 @@ function App() {
               </RotaProtegida>
             }
           >
-            <Route index element={<Servicos />} />
+            <Route index element={<Agenda />} />
+            <Route path="agenda" element={<Agenda />} />
             <Route path="servicos" element={<Servicos />} />
             <Route path="horario" element={<Horario />} />
           </Route>
