@@ -1,0 +1,61 @@
+.pagina {
+  min-height: 100svh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--cor-fundo);
+  display: flex;
+  flex-direction: column;
+}
+
+.mensagemCentral {
+  margin: auto;
+  padding: var(--espaco-5);
+  text-align: center;
+  color: var(--cor-texto-suave);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: var(--espaco-4);
+  background: var(--cor-superficie);
+  border-bottom: 1px solid var(--cor-borda);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.botaoVoltar {
+  flex: 0 0 auto;
+  width: var(--alvo-toque-min);
+  height: var(--alvo-toque-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--raio-sm);
+  color: var(--cor-texto);
+}
+
+.botaoVoltar:hover {
+  background: var(--cor-primaria-tint);
+}
+
+.nomeNegocio {
+  margin: 0;
+  font-weight: 700;
+}
+
+.progresso {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.conteudo {
+  flex: 1;
+  padding: var(--espaco-4);
+  padding-bottom: var(--espaco-6);
+}

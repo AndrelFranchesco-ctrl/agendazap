@@ -1,0 +1,94 @@
+.diasScroll {
+  display: flex;
+  gap: var(--espaco-2);
+  overflow-x: auto;
+  padding-bottom: var(--espaco-2);
+  margin: 0 calc(var(--espaco-4) * -1);
+  padding-left: var(--espaco-4);
+  padding-right: var(--espaco-4);
+  scrollbar-width: thin;
+}
+
+.diaPill {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 52px;
+  min-height: var(--alvo-toque-min);
+  padding: var(--espaco-2) var(--espaco-1);
+  background: var(--cor-superficie);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+
+.diaPillAtiva,
+.diaPillAtivo {
+  border-color: var(--cor-primaria);
+  background: var(--cor-primaria);
+}
+
+.diaPillAtivo .diaSemana,
+.diaPillAtivo .diaNumero {
+  color: #fff;
+}
+
+.diaSemana {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--cor-texto-suave);
+}
+
+.diaNumero {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--cor-texto);
+}
+
+.horarios {
+  margin-top: var(--espaco-5);
+}
+
+.mensagem {
+  color: var(--cor-texto-suave);
+  text-align: center;
+  padding: var(--espaco-5) 0;
+}
+
+.grupoPeriodo + .grupoPeriodo {
+  margin-top: var(--espaco-4);
+}
+
+.tituloPeriodo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+  margin: 0 0 var(--espaco-2);
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: var(--espaco-2);
+}
+
+.horaPill {
+  min-height: var(--alvo-toque-min);
+  padding: var(--espaco-2);
+  background: var(--cor-superficie);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio-sm);
+  font-weight: 500;
+  color: var(--cor-texto);
+}
+
+.horaPill:hover {
+  border-color: var(--cor-primaria);
+}
+
+.horaPillAtiva {
+  border-color: var(--cor-primaria);
+  background: var(--cor-primaria);
+  color: #fff;
+}

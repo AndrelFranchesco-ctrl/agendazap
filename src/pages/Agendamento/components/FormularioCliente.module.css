@@ -1,0 +1,65 @@
+.campo {
+  margin-bottom: var(--espaco-4);
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--cor-texto);
+  margin-bottom: var(--espaco-1);
+}
+
+.input {
+  width: 100%;
+  min-height: var(--alvo-toque-min);
+  padding: var(--espaco-3);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio-sm);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--cor-erro);
+}
+
+.erro {
+  margin: var(--espaco-1) 0 0;
+  font-size: 13px;
+  color: var(--cor-erro);
+}
+
+.erroEnvio {
+  margin: 0 0 var(--espaco-4);
+  padding: var(--espaco-3);
+  background: var(--cor-erro-tint);
+  color: var(--cor-erro);
+  border-radius: var(--raio-sm);
+  font-size: 14px;
+}
+
+.ajuda {
+  margin: var(--espaco-1) 0 0;
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.botao {
+  width: 100%;
+  min-height: var(--alvo-toque-min);
+  padding: var(--espaco-3);
+  background: var(--cor-primaria);
+  color: #fff;
+  border: none;
+  border-radius: var(--raio-sm);
+  font-weight: 600;
+}
+
+.botao:hover:not(:disabled) {
+  background: var(--cor-primaria-hover);
+}
+
+.botao:disabled {
+  opacity: 0.6;
+}

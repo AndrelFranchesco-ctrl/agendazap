@@ -1,0 +1,51 @@
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  width: 100%;
+  min-height: var(--alvo-toque-min);
+  padding: var(--espaco-4);
+  background: var(--cor-superficie);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  text-align: left;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--cor-primaria);
+}
+
+.cardAtivo {
+  border-color: var(--cor-primaria);
+  background: var(--cor-primaria-tint);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nome {
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.duracao {
+  font-size: 14px;
+  color: var(--cor-texto-suave);
+}
+
+.preco {
+  font-weight: 600;
+  color: var(--cor-primaria);
+  white-space: nowrap;
+}
