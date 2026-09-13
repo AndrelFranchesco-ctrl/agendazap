@@ -22,6 +22,14 @@ export function blocosOcupados(inicio, duracaoMin, intervaloMin = INTERVALO_MIN)
   return Array.from({ length: quantidade }, (_, i) => new Date(inicio.getTime() + i * intervaloMin * 60000))
 }
 
+/** Inverso de chaveDoBloco — reconstrói o Date a partir do ID do documento-trava. */
+export function parseChaveDoBloco(chave) {
+  const [dataParte, horaParte] = chave.split('T')
+  const [ano, mes, dia] = dataParte.split('-').map(Number)
+  const [hora, minuto] = horaParte.split(':').map(Number)
+  return new Date(ano, mes - 1, dia, hora, minuto)
+}
+
 /** 'HH:MM' -> minutos desde 00:00 */
 function paraMinutos(horaStr) {
   const [h, m] = horaStr.split(':').map(Number)

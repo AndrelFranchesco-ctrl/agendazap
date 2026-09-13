@@ -1,0 +1,36 @@
+.botao {
+  width: 100%;
+  min-height: var(--alvo-toque-min);
+  padding: var(--espaco-3);
+  border-radius: var(--raio-sm);
+  font-weight: 600;
+  border: 1.5px solid transparent;
+}
+
+.botao:disabled {
+  opacity: 0.6;
+}
+
+.primario {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+
+.primario:hover:not(:disabled) {
+  background: var(--cor-primaria-hover);
+}
+
+.secundario {
+  background: transparent;
+  border-color: var(--cor-borda);
+  color: var(--cor-texto);
+}
+
+.secundario:hover:not(:disabled) {
+  border-color: var(--cor-primaria);
+}
+
+.perigo {
+  background: transparent;
+  color: var(--cor-erro);
+}

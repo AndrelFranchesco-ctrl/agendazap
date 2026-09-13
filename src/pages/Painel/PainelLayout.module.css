@@ -1,0 +1,72 @@
+.pagina {
+  min-height: 100svh;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.mensagemCentral {
+  text-align: center;
+  padding: var(--espaco-6);
+  color: var(--cor-texto-suave);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--espaco-4);
+  background: var(--cor-superficie);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.nomeNegocio {
+  margin: 0;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.linkPublico {
+  font-size: 13px;
+  color: var(--cor-primaria);
+  text-decoration: none;
+}
+
+.linkPublico:hover {
+  text-decoration: underline;
+}
+
+.botaoSair {
+  background: transparent;
+  border: none;
+  color: var(--cor-texto-suave);
+  font-size: 14px;
+  min-height: var(--alvo-toque-min);
+  padding: 0 var(--espaco-2);
+}
+
+.abas {
+  display: flex;
+  gap: var(--espaco-2);
+  padding: var(--espaco-3) var(--espaco-4) 0;
+  background: var(--cor-superficie);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.aba,
+.abaAtiva {
+  padding: var(--espaco-2) var(--espaco-3);
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--cor-texto-suave);
+  border-bottom: 2px solid transparent;
+}
+
+.abaAtiva {
+  color: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+}
+
+.conteudo {
+  padding: var(--espaco-4);
+}

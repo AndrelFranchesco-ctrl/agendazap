@@ -6,9 +6,10 @@ import {
   runTransaction,
   Timestamp,
   doc,
+  documentId,
 } from 'firebase/firestore'
 import { db } from './firebase'
-import { blocosOcupados, chaveDoBloco } from '../lib/horarios'
+import { blocosOcupados, chaveDoBloco, parseChaveDoBloco, INTERVALO_MIN } from '../lib/horarios'
 
 function inicioDoDia(data) {
   const d = new Date(data)
@@ -22,21 +23,27 @@ function fimDoDia(data) {
   return d
 }
 
-/** Agendamentos confirmados de um negócio que colidem com o dia informado. */
+/**
+ * Blocos de 15min ocupados por agendamentos confirmados, no dia informado.
+ *
+ * Lê a coleção pública `agendaTravas` (só {agendamentoId}, sem dado do cliente)
+ * em vez da coleção `agendamentos` (que tem nome/telefone do cliente) — a tela
+ * pública de agendamento não pode ler dados de outros clientes só pra calcular
+ * horário livre. Ver firestore.rules.
+ */
 export async function buscarOcupadosDoDia(negocioId, dataBase) {
-  const ref = collection(db, 'negocios', negocioId, 'agendamentos')
+  const ref = collection(db, 'negocios', negocioId, 'agendaTravas')
+  const diaSeguinte = new Date(dataBase)
+  diaSeguinte.setDate(diaSeguinte.getDate() + 1)
   const q = query(
     ref,
-    where('status', '==', 'confirmado'),
-    where('dataHoraInicio', '>=', Timestamp.fromDate(inicioDoDia(dataBase))),
-    where('dataHoraInicio', '<=', Timestamp.fromDate(fimDoDia(dataBase)))
+    where(documentId(), '>=', chaveDoBloco(inicioDoDia(dataBase))),
+    where(documentId(), '<', chaveDoBloco(inicioDoDia(diaSeguinte)))
   )
   const snap = await getDocs(q)
   return snap.docs.map((d) => {
-    const data = d.data()
-    const inicio = data.dataHoraInicio.toDate()
-    const fim = new Date(inicio.getTime() + data.duracaoMin * 60000)
-    return { inicio, fim }
+    const inicio = parseChaveDoBloco(d.id)
+    return { inicio, fim: new Date(inicio.getTime() + INTERVALO_MIN * 60000) }
   })
 }
 

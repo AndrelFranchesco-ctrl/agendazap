@@ -1,0 +1,128 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    function ehDonoDoNegocio(negocioId) {
+      return autenticado()
+        && get(/databases/$(database)/documents/negocios/$(negocioId)).data.donoUid == request.auth.uid;
+    }
+
+    // ------------------------------------------------------------------
+    // slugs/{slug} — reserva de slug único (ADR-0004). O ID do documento É
+    // o slug. Sem update/delete em v1 (não há rebranding ainda).
+    // ------------------------------------------------------------------
+    match /slugs/{slug} {
+      allow read: if true;
+      allow create: if autenticado()
+        && request.resource.data.keys().hasOnly(['negocioId'])
+        && request.resource.data.negocioId is string;
+      allow update, delete: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // negocios/{negocioId} — o tenant. Leitura pública (a página pública
+    // de agendamento precisa ler nome/horário sem login). Escrita só do dono.
+    // ------------------------------------------------------------------
+    match /negocios/{negocioId} {
+      allow read: if true;
+
+      allow create: if autenticado()
+        && request.resource.data.donoUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['nome', 'slug', 'donoUid'])
+        && request.resource.data.nome is string
+        && request.resource.data.slug is string;
+
+      allow update: if ehDonoDoNegocio(negocioId)
+        // dono não pode roubar o negócio transferindo donoUid pra si em outro doc,
+        // nem mudar o slug depois de criado (links já compartilhados quebrariam).
+        && request.resource.data.donoUid == resource.data.donoUid
+        && request.resource.data.slug == resource.data.slug;
+
+      allow delete: if false; // fechar um negócio é uma decisão manual/suporte, não self-service em v1
+
+      // ----------------------------------------------------------------
+      // servicos — o que o negócio oferece. Leitura pública (necessário
+      // pra montar a tela de agendamento). Escrita só do dono.
+      // ----------------------------------------------------------------
+      match /servicos/{servicoId} {
+        allow read: if true;
+        allow create, update: if ehDonoDoNegocio(negocioId)
+          && request.resource.data.keys().hasAll(['nome', 'duracaoMin', 'preco', 'ativo'])
+          && request.resource.data.duracaoMin is int && request.resource.data.duracaoMin > 0
+          && request.resource.data.preco is number && request.resource.data.preco >= 0;
+        allow delete: if ehDonoDoNegocio(negocioId);
+      }
+
+      // ----------------------------------------------------------------
+      // bloqueios — folgas/feriados do negócio. Sem dado de cliente,
+      // leitura pública (usada pro cálculo de horário livre). Escrita só do dono.
+      // ----------------------------------------------------------------
+      match /bloqueios/{bloqueioId} {
+        allow read: if true;
+        allow write: if ehDonoDoNegocio(negocioId);
+      }
+
+      // ----------------------------------------------------------------
+      // agendamentos — TEM nome/telefone do Cliente (PII). NUNCA leitura
+      // pública — ver ADR-0003. Criação é pública (é assim que o Cliente,
+      // que não tem conta, marca um horário), mas com validação de forma.
+      // Só o dono lê/atualiza/cancela.
+      // ----------------------------------------------------------------
+      match /agendamentos/{agendamentoId} {
+        allow read: if ehDonoDoNegocio(negocioId);
+
+        allow create: if request.resource.data.keys().hasAll(
+            ['servicoId', 'servicoNome', 'duracaoMin', 'clienteNome', 'clienteTelefone',
+             'dataHoraInicio', 'status', 'lembreteEnviado']
+          )
+          && request.resource.data.status == 'confirmado'
+          && request.resource.data.lembreteEnviado == false
+          && request.resource.data.duracaoMin is int && request.resource.data.duracaoMin > 0
+          && request.resource.data.clienteNome is string && request.resource.data.clienteNome.size() >= 2
+          && request.resource.data.clienteTelefone is string && request.resource.data.clienteTelefone.size() >= 10
+          && request.resource.data.dataHoraInicio is timestamp
+          && request.resource.data.dataHoraInicio > request.time;
+
+        // Cancelamento (status -> 'cancelado') e futuras edições ficam com o dono.
+        allow update, delete: if ehDonoDoNegocio(negocioId);
+      }
+
+      // ----------------------------------------------------------------
+      // agendaTravas — trava de concorrência (ADR-0002) e fonte pública de
+      // "isso está ocupado" pro cálculo de horário livre (ADR-0003). Não
+      // tem nenhum dado do Cliente, só a referência ao agendamento.
+      //
+      // Risco residual aceito por ora (v1): como a checagem "esse bloco já
+      // existe?" roda dentro da transação do cliente, não há como a regra
+      // de segurança validar que toda escrita aqui corresponde a um
+      // agendamento real — um cliente malicioso poderia criar travas
+      // "fantasma" pra bloquear horários sem completar um agendamento de
+      // verdade. Mitigação futura: mover a criação pra uma Cloud Function.
+      // ----------------------------------------------------------------
+      match /agendaTravas/{blocoId} {
+        allow read: if true;
+        allow create: if request.resource.data.keys().hasOnly(['agendamentoId'])
+          && request.resource.data.agendamentoId is string;
+        allow update: if false;
+        allow delete: if ehDonoDoNegocio(negocioId);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // usuarios/{uid} — vínculo dono <-> negócio. Cada um só lê/escreve o
+    // próprio documento.
+    // ------------------------------------------------------------------
+    match /usuarios/{uid} {
+      allow read: if autenticado() && request.auth.uid == uid;
+      allow create: if autenticado() && request.auth.uid == uid
+        && request.resource.data.keys().hasAll(['negocioId']);
+      allow update: if autenticado() && request.auth.uid == uid;
+      allow delete: if false;
+    }
+  }
+}

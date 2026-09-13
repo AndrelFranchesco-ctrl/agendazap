@@ -3,7 +3,7 @@
 ## Termos
 
 **Negócio** (tenant)
-O estabelecimento cliente da plataforma (salão, barbearia, clínica). Tem um `slug` único usado na URL pública (`agendazap.app/{slug}`), um número de WhatsApp para onde chegam as notificações internas, e um horário de funcionamento. Todo dado de agendamento pertence a exatamente um Negócio — não existe dado compartilhado entre negócios.
+O estabelecimento cliente da plataforma (salão, barbearia, clínica). Tem um `slug` único usado na URL pública (`agendazap.app/{slug}`), um número de WhatsApp para onde chegam as notificações internas, e um horário de funcionamento. Todo dado de agendamento pertence a exatamente um Negócio — não existe dado compartilhado entre negócios. O `slug` é reservado numa coleção própria no momento da criação — ver ADR-0004.
 
 **Dono**
 Usuário autenticado (Firebase Auth) vinculado a um Negócio via `usuarios/{uid}.negocioId`. É quem acessa o painel administrativo. Um dono pertence a exatamente um Negócio (v1 — sem multi-negócio por dono).
