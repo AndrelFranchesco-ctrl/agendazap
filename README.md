@@ -10,8 +10,9 @@ Pequenos estabelecimentos de serviço costumam agendar por WhatsApp manual ou ca
 
 ## O que o AgendaZap resolve
 
-- **Página pública de agendamento** (`/{slug-do-negocio}`): o cliente escolhe o serviço, vê os horários realmente livres e confirma em menos de 1 minuto, sem precisar criar conta.
-- **Painel do dono** (`/painel`): agenda do dia com dados do cliente e cancelamento, cadastro de serviços e horário de funcionamento.
+- **Página pública de agendamento** (`/{slug-do-negocio}`): o cliente escolhe o serviço, o profissional (quando o negócio tem equipe) e vê os horários realmente livres — de cada profissional, não só do negócio como um todo.
+- **Painel do dono** (`/painel`): agenda do dia com dados do cliente e cancelamento, cadastro de serviços, horário de funcionamento e aprovação da equipe.
+- **Perfil do profissional** (`/equipe`): cada barbeiro/cabeleireiro entra com um código de equipe, cria o próprio perfil e define os próprios dias e horários de trabalho — independente do horário geral do negócio (baseado em como Trinks, Fresha e Booksy resolvem isso).
 - **Lembrete automático no WhatsApp** antes do horário (via WhatsApp Cloud API) — próxima etapa.
 - **Multi-tenant de verdade**: uma única plataforma atende N negócios, cada um com seu próprio link e dados isolados.
 
@@ -29,6 +30,8 @@ Ver [`CONTEXT.md`](./CONTEXT.md) para o glossário do domínio e [`docs/adr/`](.
 - **[ADR-0002](./docs/adr/0002-trava-de-concorrencia-para-evitar-agendamento-duplo.md)** — como dois clientes não conseguem reservar o mesmo horário ao mesmo tempo, usando trava por documentos no Firestore (o SDK Web não permite transação com query).
 - **[ADR-0003](./docs/adr/0003-dados-do-cliente-isolados-da-consulta-publica-de-vagas.md)** — a consulta pública de horário livre nunca lê dado pessoal de cliente (nome/telefone ficam isolados numa coleção só o dono lê).
 - **[ADR-0004](./docs/adr/0004-slug-reservado-via-colecao-dedicada.md)** — o link de cada negócio é reservado de forma atômica, sem risco de dois donos criarem o mesmo link ao mesmo tempo.
+- **[ADR-0005](./docs/adr/0005-agendamento-por-profissional-nao-por-negocio.md)** — cada profissional é seu próprio recurso agendável, com horário e trava de concorrência independentes (negócios sem equipe cadastrada continuam no modo antigo).
+- **[ADR-0006](./docs/adr/0006-profissional-entra-por-codigo-e-fica-pendente-ate-o-dono-aprovar.md)** — autoatendimento do profissional via código de equipe, pendente até o dono aprovar.
 
 ## Rodando localmente
 
@@ -43,4 +46,4 @@ Para usar dados reais, copie `.env.example` para `.env` e preencha com as creden
 
 ## Status
 
-Em desenvolvimento ativo, já publicado. Feito até agora: página pública de agendamento de ponta a ponta, cadastro/login do dono, criação de negócio, CRUD de serviços, horário de funcionamento e agenda do dia com cancelamento — tudo testado contra o Firestore de produção real. Próximo: integração com a WhatsApp Cloud API.
+Em desenvolvimento ativo, já publicado. Feito até agora: página pública de agendamento de ponta a ponta (com escolha de profissional), cadastro/login do dono e do profissional, criação de negócio, CRUD de serviços, horário de funcionamento, perfil e horário próprio de cada profissional, aprovação de equipe e agenda do dia com cancelamento — tudo testado contra o Firestore de produção real. Próximo: integração com a WhatsApp Cloud API.
