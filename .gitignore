@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Cache local do Firebase CLI (hashes de deploy)
+.firebase
+
 # Credenciais reais — nunca commitar (usar .env.example como referência)
 .env
 .env.*
